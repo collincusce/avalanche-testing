@@ -357,11 +357,19 @@ func (c *Client) GetTx(txID ids.ID) ([]byte, error) {
 	return formatter.Bytes, nil
 }
 
+// GetTxStatusResponse ...
+type GetTxStatusResponse struct {
+	Status platformvm.Status `json:"status"`
+	// Reason this tx was dropped.
+	// Only non-empty if Status is dropped
+	Reason string `json:"reason,omitempty"`
+}
+
 // GetTxStatus returns the status of the transaction corresponding to [txID]
 func (c *Client) GetTxStatus(txID ids.ID) (platformvm.Status, error) {
-	res := new(platformvm.Status)
+	res := new(GetTxStatusResponse)
 	err := c.requester.SendRequest("getTxStatus", &platformvm.GetTxStatusArgs{
 		TxID: txID,
 	}, res)
-	return *res, err
+	return res.Status, err
 }
